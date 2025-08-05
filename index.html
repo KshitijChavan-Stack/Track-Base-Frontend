@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TrackBase Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    @import url('https://fonts.cdnfonts.com/css/megna');
+  </style>
+</head>
+<body>
+  <!-- Splash Screen -->
+  <div class="splash-screen" id="splashScreen">
+    <div class="splash-content">
+      <div class="splash-logo">
+        <i class="fas fa-chart-line"></i>
+        <h1 class="splash-title">TrackBase</h1>
+        <div class="splash-underline"></div>
+      </div>
+      <p class="splash-tagline">Collaborate & Innovate</p>
+      <p class="splash-subtitle">Your complete attendance management solution</p>
+    </div>
+    
+    <!-- Floating Characters -->
+    <div class="splash-character top-left">
+      <img src="img/slashScreenimg1.png" alt="Collaboration Character" class="character-image">
+    </div>
+    
+    <div class="splash-character bottom-right">
+      <img src="img/splashscreenimg2.png" alt="Collaboration Character" class="character-image large">
+    </div>
+  </div>
+
+  <header class="header">
+    <div class="logo">
+      <i class="fas fa-chart-line"></i>
+      <span>TrackBase</span>
+    </div>
+    <nav class="navbar">
+      <a href="#">About Us</a>
+      <span class="separator">|</span>
+      <a href="#">Terms and Conditions</a>
+    </nav>
+  </header>
+  
+  <main class="main-content">
+    <div class="left-section">
+      <img src="img/leftSide.png" width="300" alt="left character" class="left-character">
+    </div>
+    <div class="right-section">
+      <img src="img/rightSide.png" width="300" alt="right character" class="right-character">
+    </div>
+  </main>
+
+  <!-- Login card positioned relative to body -->
+  <div class="login-card" id="loginForm">
+    <h2>Login</h2>
+    <div class="input-group">
+      <label for="name">Name</label>
+      <input type="text" id="name" placeholder="Enter your name" />
+    </div>
+    <div class="input-group">
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="company@example.com" />
+    </div>
+    <div class="input-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="123456789" />
+    </div>
+    <a class="forgot-password" href="#">Contact Support</a>
+    <a class="register-link" href="register.html">Register New Employee/Manager</a>
+    <button class="login-button">Login</button>
+  </div>
+
+  <!-- Post-login options card (hidden by default) -->
+  <div class="options-card" id="optionsCard" style="display: none;">
+    <h2>Welcome Back! <span class="wave">👋</span></h2>
+    <p class="welcome-message">Great to see you again! What would you like to do today?</p>
+    <div class="options-buttons">
+      <button class="option-btn continue-btn" id="continueBtn">
+        <i class="fas fa-briefcase"></i>
+        <span>Continue to Work</span>
+      </button>
+      <button class="option-btn stats-btn" id="statsBtn">
+        <i class="fas fa-chart-bar"></i>
+        <span>Your Stats</span>
+      </button>
+      <button class="option-btn logout-btn" id="logoutBtn">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout & Exit</span>
+      </button>
+    </div>
+  </div>
+  
+  <!-- Notification Container -->
+  <div id="notification" class="notification"></div>
+  
+  <script src="js/login.js"></script>
+</body>
+</html>

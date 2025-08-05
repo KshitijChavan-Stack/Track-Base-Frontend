@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TrackBase Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <script src="js/dashboard.js"></script>
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <i class="fas fa-chart-line"></i>
+        <span>TrackBase</span>
+      </div>
+    </div>
+    
+         <nav class="sidebar-nav">
+       <ul>
+         <li>
+           <a href="index.html" class="nav-item">
+             <i class="fas fa-arrow-left"></i>
+             <span>Go back to Home</span>
+           </a>
+         </li>
+         <li>
+           <a href="mailto:support@trackbase.com?subject=Dashboard Help" class="nav-item">
+             <i class="fas fa-question-circle"></i>
+             <span>Get help</span>
+           </a>
+         </li>
+       </ul>
+     </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <button class="menu-toggle">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div class="greeting">
+          <span>Hello Thomas</span>
+          <span class="wave">👋</span>
+        </div>
+      </div>
+      
+      
+      
+      
+    </header>
+
+    <!-- Page Content -->
+    <div class="page-content">
+             <!-- Breadcrumbs -->
+       <div class="breadcrumbs">
+         <a href="index.html">Home</a>
+         <i class="fas fa-chevron-right"></i>
+         <span>Employee</span>
+       </div>
+
+      <!-- Filters Section -->
+      <div class="filters-section">
+        <div class="filter-inputs">
+          <div class="input-group">
+            <input type="text" placeholder="Employee ID">
+          </div>
+        </div>
+        <div class="filter-buttons">
+          <button class="btn btn-search">
+            <i class="fas fa-search"></i>
+            <span>Search</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Employee Table -->
+      <div class="table-container">
+                 <table class="employee-table">
+           <thead>
+             <tr>
+               <th>Employee ID</th>
+               <th>Name</th>
+               <th>Email</th>
+             </tr>
+           </thead>
+           <tbody>
+             <tr>
+               <td>#MZ-001</td>
+               <td>
+                 <div class="employee-info">
+                   <img src="https://via.placeholder.com/32" alt="Harry Porter" class="employee-avatar">
+                   <span>Harry Porter</span>
+                 </div>
+               </td>
+               <td>anjoli@gmail.com</td>
+             </tr>
+             <tr>
+               <td>#MZ-002</td>
+               <td>
+                 <div class="employee-info">
+                   <img src="https://via.placeholder.com/32" alt="Lary go" class="employee-avatar">
+                   <span>Lary go</span>
+                 </div>
+               </td>
+               <td>anjoli@gmail.com</td>
+             </tr>
+             <tr>
+               <td>#MZ-003</td>
+               <td>
+                 <div class="employee-info">
+                   <img src="https://via.placeholder.com/32" alt="Sumona Gang" class="employee-avatar">
+                   <span>Sumona Gang</span>
+                 </div>
+               </td>
+               <td>anjoli@gmail.com</td>
+             </tr>
+             <tr>
+               <td>#MZ-004</td>
+               <td>
+                 <div class="employee-info">
+                   <img src="https://via.placeholder.com/32" alt="David Morph" class="employee-avatar">
+                   <span>David Morph</span>
+                 </div>
+               </td>
+               <td>anjoli@gmail.com</td>
+             </tr>
+             <tr>
+               <td>#MZ-005</td>
+               <td>
+                 <div class="employee-info">
+                   <img src="https://via.placeholder.com/32" alt="Willium Cany" class="employee-avatar">
+                   <span>Willium Cany</span>
+                 </div>
+               </td>
+               <td>anjoli@gmail.com</td>
+             </tr>
+           </tbody>
+         </table>
+      </div>
+
+      
+    </div>
+  </main>
+</body>
+</html> 

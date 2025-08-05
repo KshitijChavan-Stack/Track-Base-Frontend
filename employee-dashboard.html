@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TrackBase - Employee Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <script src="js/employee-dashboard.js"></script>
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <i class="fas fa-chart-line"></i>
+        <span>TrackBase</span>
+      </div>
+    </div>
+    
+         <nav class="sidebar-nav">
+       <ul>
+         <li>
+           <a href="#" class="nav-item" id="goBackHome">
+             <i class="fas fa-arrow-left"></i>
+             <span>Go back to Home</span>
+           </a>
+         </li>
+         <li>
+           <a href="#" class="nav-item">
+             <i class="fas fa-info-circle"></i>
+             <span>About Us</span>
+           </a>
+         </li>
+         <li>
+           <a href="#" class="nav-item">
+             <i class="fas fa-file-contract"></i>
+             <span>Terms and Conditions</span>
+           </a>
+         </li>
+         <li>
+           <a href="mailto:support@trackbase.com?subject=Employee Dashboard Help" class="nav-item">
+             <i class="fas fa-question-circle"></i>
+             <span>Get help</span>
+           </a>
+         </li>
+       </ul>
+     </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+         <!-- Header -->
+     <header class="header">
+       <div class="header-left">
+         <button class="menu-toggle">
+           <i class="fas fa-bars"></i>
+         </button>
+         <div class="greeting">
+           <span id="employeeGreeting">Hello</span>
+           <span class="wave">👋</span>
+         </div>
+       </div>
+       <div class="header-right">
+         <nav class="header-nav">
+           <a href="#" class="nav-link">
+             <i class="fas fa-user"></i>
+             <span>About Us</span>
+           </a>
+           <span class="separator">|</span>
+           <a href="#" class="nav-link">
+             <span>Terms and Conditions</span>
+           </a>
+           <span class="separator">|</span>
+           <button class="nav-link logout-btn" id="logoutBtn">
+             <i class="fas fa-sign-out-alt"></i>
+             <span>Logout & Exit</span>
+           </button>
+         </nav>
+       </div>
+     </header>
+
+    <!-- Page Content -->
+    <div class="page-content">
+      <!-- Breadcrumbs -->
+      <div class="breadcrumbs">
+        <a href="index.html">Home</a>
+        <i class="fas fa-chevron-right"></i>
+        <span>My Dashboard</span>
+      </div>
+
+      <!-- Employee Stats Section -->
+      <div class="stats-section">
+        <h2>My Statistics</h2>
+        
+        <!-- Search Filter -->
+        <div class="search-filter">
+          <div class="filter-inputs">
+            <div class="input-group">
+              <label for="monthSelect">Month:</label>
+              <select id="monthSelect">
+                <option value="0">January</option>
+                <option value="1">February</option>
+                <option value="2">March</option>
+                <option value="3">April</option>
+                <option value="4">May</option>
+                <option value="5">June</option>
+                <option value="6">July</option>
+                <option value="7">August</option>
+                <option value="8">September</option>
+                <option value="9">October</option>
+                <option value="10">November</option>
+                <option value="11">December</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label for="yearSelect">Year:</label>
+              <select id="yearSelect">
+                <option value="2024">2024</option>
+                <option value="2025">2025</option>
+                <option value="2026">2026</option>
+                <option value="2027">2027</option>
+                <option value="2028">2028</option>
+              </select>
+            </div>
+            <button class="btn btn-search" id="searchBtn">
+              <i class="fas fa-search"></i>
+              <span>Search</span>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-content">
+              <h3>Total Hours</h3>
+              <p class="stat-value" id="totalHours">0</p>
+              <p class="stat-label">This Month</p>
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="stat-content">
+              <h3>Days Present</h3>
+              <p class="stat-value" id="daysPresent">0</p>
+              <p class="stat-label">This Month</p>
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-percentage"></i>
+            </div>
+            <div class="stat-content">
+              <h3>Attendance Rate</h3>
+              <p class="stat-value" id="attendanceRate">0%</p>
+              <p class="stat-label">This Month</p>
+            </div>
+          </div>
+          
+
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="activity-section">
+        <h2>Recent Activity</h2>
+        <div class="activity-list" id="activityList">
+          <!-- Activity items will be populated by JavaScript -->
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Notification Container -->
+  <div id="notification" class="notification"></div>
+</body>
+</html> 
