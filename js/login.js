@@ -175,17 +175,20 @@ document.addEventListener('DOMContentLoaded', function() {
         
         console.log('Stored user data:', userData);
         
-        // Check if user already has an active session (marked entry today but hasn't logged out)
+        // Check if user already has an active session (entry today without exit)
         const hasActiveSession = await checkActiveSession(userData);
-        
         if (hasActiveSession) {
           console.log('User has active session, skipping entry marking');
           showNotification('Welcome back! You are already logged in.', 'info');
         } else {
-          console.log('No active session found, marking entry');
-          // Call mark entry API
+          try {
+            console.log('No active session found, attempting to mark entry');
           await callMarkEntryAPI(userData);
           showNotification('Login successful! Welcome back!', 'success');
+          } catch (e) {
+            console.log('Entry marking failed:', e);
+            showNotification('Login successful, but could not mark entry.', 'error');
+          }
         }
         
         // Show options card instead of redirecting
@@ -244,9 +247,11 @@ document.addEventListener('DOMContentLoaded', function() {
       console.log('Attendance data received for session check:', attendanceData);
       
       // Filter for user's entries from today
+      const userEmailLower = (userData.email || '').toLowerCase();
       const userTodayEntries = attendanceData.filter(record => {
         const recordDate = new Date(record.entryTime).toISOString().split('T')[0];
-        return record.email === userData.email && recordDate === todayString;
+        const recEmailLower = (record.email || record.Email || '').toLowerCase();
+        return recEmailLower === userEmailLower && recordDate === todayString;
       });
       
       console.log('User entries from today:', userTodayEntries);
@@ -267,222 +272,96 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  // Function to call mark entry API
-  async function callMarkEntryAPI(userData) {
+  // Resolve exact email/name casing for managers from manager API (entry API may be case-sensitive)
+  async function resolveEntryIdentity(userData) {
     try {
+      if (userData?.isManager) {
+        const res = await fetch('https://trackbase.onrender.com/api/manager');
+        if (res.ok) {
+          const list = await res.json();
+          const found = list.find(m => (m.email || '').toLowerCase() === (userData.email || '').toLowerCase());
+          if (found) {
+            return { name: found.name || userData.name, email: found.email || userData.email };
+          }
+        }
+      }
+    } catch (_) {}
+    return { name: userData.name, email: userData.email };
+  }
+
+  // Function to call mark entry API (robust single-call with safe parsing)
+  async function callMarkEntryAPI(userData) {
       console.log('=== MARKING ENTRY FOR USER ===');
       console.log('User data:', userData);
       
-      // Get the password from the form
       const password = document.getElementById('password').value.trim();
-      
-      // Validate required fields before making API call
-      if (!userData.email || !password) {
-        console.error('Missing required fields for mark entry');
+    if (!userData?.email || !password) {
         showNotification('Missing required information for attendance marking', 'error');
         return;
       }
       
-      // Email validation
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(userData.email)) {
-        console.error('Invalid email format for mark entry');
         showNotification('Invalid email format for attendance marking', 'error');
         return;
       }
       
-      // Use the correct format based on Postman testing
-      const markEntryData = {
-        EmployeeName: userData.name,
-        Email: userData.email,
+    // Normalize identity for entry call (keep exact casing if available from manager table)
+    const identity = await resolveEntryIdentity(userData);
+    const normalizedEmailLower = (identity.email || '').toLowerCase();
+    // Send a compatibility payload that includes multiple casings some backends expect
+    const payload = {
+      EmployeeName: identity.name,
+      Email: identity.email,
         password: password
       };
-      
-      console.log('Mark entry API data:', markEntryData);
-      console.log('Mark entry API URL:', 'https://trackbase.onrender.com/api/attendance/entry');
-      console.log('Mark entry request body:', JSON.stringify(markEntryData, null, 2));
-      
-      // Make the API call with proper error handling (calling external API directly)
-      const response = await fetch('https://trackbase.onrender.com/api/attendance/entry', {
+    console.log('Mark entry request body:', payload);
+
+    async function postEntry(body) {
+      const resp = await fetch('https://trackbase.onrender.com/api/attendance/entry', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Accept': 'application/json, text/plain, */*'
         },
-        body: JSON.stringify(markEntryData)
+        body: JSON.stringify(body)
       });
-      
-      console.log('Mark entry response status:', response.status);
-      
-      let result;
-      try {
-        result = await response.json();
-        console.log('Mark entry response:', result);
-        console.log('Mark entry response details:', JSON.stringify(result, null, 2));
-      } catch (jsonError) {
-        console.error('Error parsing JSON response:', jsonError);
-        console.log('Response text:', await response.text());
-        result = { error: 'Invalid response format' };
-      }
-      
-      // If the first format fails, try alternative formats
-      if (!response.ok) {
-        console.log('First format failed, trying alternative formats...');
-        
-        // Try alternative format with different casing
-        const markEntryDataAlternative = {
-          EmployeeName: userData.name,
-          email: userData.email,
-          password: password
-        };
-        
-        const response2 = await fetch('https://trackbase.onrender.com/api/attendance/entry', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(markEntryDataAlternative)
-        });
-        
-        console.log('Mark entry response status (format 2):', response2.status);
-        let result2;
-        try {
-          result2 = await response2.json();
-          console.log('Mark entry response (format 2):', result2);
-          console.log('Mark entry response details (format 2):', JSON.stringify(result2, null, 2));
-        } catch (jsonError) {
-          console.error('Error parsing JSON response (format 2):', jsonError);
-          console.log('Response text (format 2):', await response2.text());
-          result2 = { error: 'Invalid response format' };
-        }
-        
-        if (response2.ok) {
-          console.log('✅ Mark entry successful with alternative format');
-          showNotification('Attendance marked successfully! 📅', 'success');
-          return;
-        }
-        
-              // Try userId format as last resort
-      const markEntryDataUserId = {
-        userId: userData.email,
-        employeeName: userData.name
-      };
-      
-      // Try a simpler format with just email and name
-      const markEntryDataSimple = {
-        EmployeeName: userData.name,
-        Email: userData.email
-      };
-        
-        const response3 = await fetch('https://trackbase.onrender.com/api/attendance/entry', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(markEntryDataUserId)
-        });
-        
-        console.log('Mark entry response status (format 3):', response3.status);
-        let result3;
-        try {
-          result3 = await response3.json();
-          console.log('Mark entry response (format 3):', result3);
-          console.log('Mark entry response details (format 3):', JSON.stringify(result3, null, 2));
-        } catch (jsonError) {
-          console.error('Error parsing JSON response (format 3):', jsonError);
-          console.log('Response text (format 3):', jsonError);
-          result3 = { error: 'Invalid response format' };
-        }
-        
-        if (response3.ok) {
-          console.log('✅ Mark entry successful with userId format');
-          showNotification('Attendance marked successfully! 📅', 'success');
-          return;
-        }
-        
-        // Try the simple format
-        console.log('Third format failed, trying simple format...');
-        const response4 = await fetch('https://trackbase.onrender.com/api/attendance/entry', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(markEntryDataSimple)
-        });
-        
-        console.log('Mark entry response status (format 4):', response4.status);
-        let result4;
-        try {
-          result4 = await response4.json();
-          console.log('Mark entry response (format 4):', result4);
-          console.log('Mark entry response details (format 4):', JSON.stringify(result4, null, 2));
-        } catch (jsonError) {
-          console.error('Error parsing JSON response (format 4):', jsonError);
-          console.log('Response text (format 4):', jsonError);
-          result4 = { error: 'Invalid response format' };
-        }
-        
-        if (response4.ok) {
-          console.log('✅ Mark entry successful with simple format');
-          showNotification('Attendance marked successfully! 📅', 'success');
-          return;
-        }
-        
-        // All formats failed - try alternative endpoint
-        console.log('All standard formats failed, trying alternative endpoint...');
-        const response5 = await fetch('https://trackbase.onrender.com/api/attendance', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(markEntryData)
-        });
-        
-        console.log('Mark entry response status (alternative endpoint):', response5.status);
-        let result5;
-        try {
-          result5 = await response5.json();
-          console.log('Mark entry response (alternative endpoint):', result5);
-          console.log('Mark entry response details (alternative endpoint):', JSON.stringify(result5, null, 2));
-        } catch (jsonError) {
-          console.error('Error parsing JSON response (alternative endpoint):', jsonError);
-          console.log('Response text (alternative endpoint):', jsonError);
-          result5 = { error: 'Invalid response format' };
-        }
-        
-        if (response5.ok) {
-          console.log('✅ Mark entry successful with alternative endpoint');
-          showNotification('Attendance marked successfully! 📅', 'success');
-          return;
-        }
-        
-        // All attempts failed
-        console.error('❌ Mark entry failed with all formats and endpoints:', result5);
-        showNotification('Attendance marking failed, but login successful', 'error');
-        return;
-      }
-      
-      // If we reach here, the first format was successful
-      console.log('✅ Mark entry successful with capitalized format');
-      showNotification('Attendance marked successfully! 📅', 'success');
-      
-      // Test: Fetch attendance data to verify entry was saved
-      setTimeout(async () => {
-        try {
-          console.log('=== VERIFYING ENTRY WAS SAVED ===');
-          const verifyResponse = await fetch('https://trackbase.onrender.com/api/attendance');
-          const verifyData = await verifyResponse.json();
-          const userEntries = verifyData.filter(record => record.email === userData.email);
-          console.log('User entries found after marking:', userEntries);
-          console.log('Latest entry:', userEntries[userEntries.length - 1]);
-        } catch (verifyError) {
-          console.error('Error verifying entry:', verifyError);
-        }
-      }, 2000);
-      
-    } catch (error) {
-      console.error('❌ Error calling mark entry API:', error);
-      showNotification('Attendance marking failed, but login successful', 'error');
+      const txt = await resp.text();
+      let jsn; try { jsn = txt ? JSON.parse(txt) : null; } catch (_) { jsn = null; }
+      return { ok: resp.ok, status: resp.status, text: txt, json: jsn };
     }
+
+    // Attempt 1: Primary payload
+    let result = await postEntry(payload);
+    console.log('Mark entry response status:', result.status);
+    if (!result.ok) {
+      console.warn('Primary entry failed:', result.text || result.json);
+      // Attempt 2: Password with capital P
+      const payloadP = { EmployeeName: identity.name, Email: identity.email, Password: password };
+      result = await postEntry(payloadP);
+      if (!result.ok) {
+        console.warn('Second entry attempt failed:', result.text || result.json);
+        // Attempt 3: Name instead of EmployeeName
+        const payloadName = { Name: identity.name, Email: identity.email, password: password };
+        result = await postEntry(payloadName);
+        if (!result.ok) {
+          console.warn('Third entry attempt failed:', result.text || result.json);
+          // Attempt 4: lowercase keys
+          const payloadLower = { name: identity.name, email: (identity.email || '').toLowerCase(), password: password };
+          result = await postEntry(payloadLower);
+        }
+      }
+    }
+
+    if (!result.ok) {
+      const message = (result.json && (result.json.message || result.json.error)) || result.text || `HTTP ${result.status}`;
+      console.error('Mark entry failed after retries:', message);
+      showNotification(message, 'error');
+          return;
+        }
+        
+    console.log('✅ Mark entry successful', result.json || result.text);
+      showNotification('Attendance marked successfully! 📅', 'success');
   }
 
   // Handle option button clicks
@@ -637,8 +516,8 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // Route based on user role
       if (isManager) {
-        // Manager goes to the main dashboard with search functionality
-        window.location.href = `dashboard.html?name=${encodeURIComponent(userName)}&email=${encodeURIComponent(userEmail)}&role=manager`;
+        // Manager goes to dedicated manager dashboard
+        window.location.href = `manager-dashboard.html?name=${encodeURIComponent(userName)}&email=${encodeURIComponent(userEmail)}&role=manager`;
       } else {
         // Employee goes to the employee dashboard
         window.location.href = `employee-dashboard.html?name=${encodeURIComponent(userName)}&email=${encodeURIComponent(userEmail)}&role=employee`;

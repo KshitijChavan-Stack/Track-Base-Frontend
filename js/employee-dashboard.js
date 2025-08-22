@@ -308,93 +308,162 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Initialize logout functionality
-  function initializeLogout() {
-    document.getElementById('logoutBtn').addEventListener('click', async function() {
-      try {
-        // Show loading state
-        const logoutBtn = document.getElementById('logoutBtn');
-        const originalText = logoutBtn.innerHTML;
-        logoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Marking Exit...</span>';
-        logoutBtn.disabled = true;
+  // Custom Logout Popup Functions
+  function showLogoutPopup() {
+    const popup = document.getElementById('logoutPopup');
+    if (popup) {
+      popup.style.display = 'flex';
+      setTimeout(() => popup.classList.add('show'), 10);
+      
+      // Clear password field and focus on it
+      const passwordInput = document.getElementById('logoutPassword');
+      if (passwordInput) {
+        passwordInput.value = '';
+        setTimeout(() => passwordInput.focus(), 350);
+      }
+    }
+  }
 
-        console.log('=== MARKING EXIT FOR EMPLOYEE ===');
+  function hideLogoutPopup() {
+    const popup = document.getElementById('logoutPopup');
+    if (popup) {
+      popup.classList.remove('show');
+      setTimeout(() => popup.style.display = 'none', 300);
+    }
+  }
+
+  async function performLogout() {
+    try {
+      // Show loading state
+      const logoutBtn = document.getElementById('logoutBtn');
+      const originalText = logoutBtn.innerHTML;
+      logoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Marking Exit...</span>';
+      logoutBtn.disabled = true;
+
+      console.log('=== MARKING EXIT FOR EMPLOYEE ===');
+      
+      // Get user data from URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const userName = urlParams.get('name');
+      const userEmail = urlParams.get('email');
+      
+      console.log('User data:', { name: userName, email: userEmail });
+      
+      // Get password from the input field in the popup
+      const passwordInput = document.getElementById('logoutPassword');
+      const password = passwordInput.value.trim();
+      
+      if (!password) {
+        showNotification('Please enter your password', 'error');
+        hideLogoutPopup();
+        logoutBtn.innerHTML = originalText;
+        logoutBtn.disabled = false;
+        passwordInput.focus();
+        return;
+      }
+      
+      // Prepare exit data with correct format
+      const exitData = {
+        EmployeeName: userName,
+        Email: userEmail,
+        password: password
+      };
+      
+      console.log('Exit API data:', exitData);
+      console.log('Exit API URL:', 'https://trackbase.onrender.com/api/attendance/exit');
+      
+      // Call the exit API
+      const response = await fetch('https://trackbase.onrender.com/api/attendance/exit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(exitData)
+      });
+      
+      console.log('Exit response status:', response.status);
+      
+      let result;
+      try {
+        result = await response.json();
+        console.log('Exit response:', result);
+      } catch (jsonError) {
+        console.error('Error parsing JSON response:', jsonError);
+        result = { error: 'Invalid response format' };
+      }
+      
+      if (response.ok) {
+        console.log('✅ Exit marked successfully');
+        showNotification('Exit marked successfully! Have a great day! 👋', 'success');
+        hideLogoutPopup();
         
-        // Get user data from URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const userName = urlParams.get('name');
-        const userEmail = urlParams.get('email');
+        // Wait a moment for the notification to be seen
+        setTimeout(() => {
+          // Redirect to login page
+          window.location.href = 'index.html';
+        }, 2000);
         
-        console.log('User data:', { name: userName, email: userEmail });
-        
-        // For employee dashboard, we need to prompt for password
-        const password = prompt('Please enter your password to mark exit:');
-        
-        if (!password) {
-          showNotification('Password is required to mark exit', 'error');
-          logoutBtn.innerHTML = originalText;
-          logoutBtn.disabled = false;
-          return;
-        }
-        
-        // Prepare exit data with correct format
-        const exitData = {
-          EmployeeName: userName,
-          Email: userEmail,
-          password: password
-        };
-        
-        console.log('Exit API data:', exitData);
-        console.log('Exit API URL:', 'https://trackbase.onrender.com/api/attendance/exit');
-        
-        // Call the exit API
-        const response = await fetch('https://trackbase.onrender.com/api/attendance/exit', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(exitData)
-        });
-        
-        console.log('Exit response status:', response.status);
-        
-        let result;
-        try {
-          result = await response.json();
-          console.log('Exit response:', result);
-        } catch (jsonError) {
-          console.error('Error parsing JSON response:', jsonError);
-          result = { error: 'Invalid response format' };
-        }
-        
-        if (response.ok) {
-          console.log('✅ Exit marked successfully');
-          showNotification('Exit marked successfully! Have a great day! 👋', 'success');
-          
-          // Wait a moment for the notification to be seen
-          setTimeout(() => {
-            // Redirect to login page
-            window.location.href = 'index.html';
-          }, 2000);
-          
-        } else {
-          console.error('❌ Exit marking failed:', result);
-          showNotification('Exit marking failed. Please try again.', 'error');
-          
-          // Reset button state
-          logoutBtn.innerHTML = originalText;
-          logoutBtn.disabled = false;
-        }
-        
-      } catch (error) {
-        console.error('❌ Error calling exit API:', error);
+      } else {
+        console.error('❌ Exit marking failed:', result);
         showNotification('Exit marking failed. Please try again.', 'error');
         
+        // Clear password field and focus on error
+        passwordInput.value = '';
+        passwordInput.focus();
+        
         // Reset button state
-        const logoutBtn = document.getElementById('logoutBtn');
-        logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i><span>Logout & Exit</span>';
+        logoutBtn.innerHTML = originalText;
         logoutBtn.disabled = false;
       }
+      
+    } catch (error) {
+      console.error('❌ Error calling exit API:', error);
+      showNotification('Exit marking failed. Please try again.', 'error');
+      hideLogoutPopup();
+      
+      // Reset button state
+      const logoutBtn = document.getElementById('logoutBtn');
+      logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i><span>Logout & Exit</span>';
+      logoutBtn.disabled = false;
+    }
+  }
+
+  // Initialize logout functionality
+  function initializeLogout() {
+    document.getElementById('logoutBtn').addEventListener('click', function() {
+      showLogoutPopup();
     });
+
+    // Logout popup event listeners
+    const logoutConfirm = document.getElementById('logoutConfirm');
+    const logoutCancel = document.getElementById('logoutCancel');
+
+    if (logoutConfirm) {
+      logoutConfirm.addEventListener('click', performLogout);
+    }
+
+    if (logoutCancel) {
+      logoutCancel.addEventListener('click', hideLogoutPopup);
+    }
+
+    // Close popup when clicking outside
+    const logoutPopup = document.getElementById('logoutPopup');
+    if (logoutPopup) {
+      logoutPopup.addEventListener('click', function(e) {
+        if (e.target === logoutPopup) {
+          hideLogoutPopup();
+        }
+      });
+    }
+
+    // Add Enter key support for password field
+    const passwordInput = document.getElementById('logoutPassword');
+    if (passwordInput) {
+      passwordInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          performLogout();
+        }
+      });
+    }
   }
 }); 

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TrackBase - Manager Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="js/manager-dashboard.js"></script>
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar open">
+    <div class="sidebar-header">
+      <div class="logo">
+        <i class="fas fa-chart-line"></i>
+        <span>TrackBase</span>
+      </div>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <ul>
+        <li>
+          <a href="#" class="nav-item" id="goBackHome">
+            <i class="fas fa-arrow-left"></i>
+            <span>Go back to Home</span>
+          </a>
+        </li>
+        <li>
+          <a href="mailto:support@trackbase.com?subject=Manager Dashboard Help" class="nav-item">
+            <i class="fas fa-question-circle"></i>
+            <span>Get help</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <button class="menu-toggle">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div class="greeting">
+          <span id="managerGreeting">Hello</span>
+          <span class="wave">👋</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <nav class="header-nav">
+          <a href="#" class="nav-link">
+            <i class="fas fa-user-tie"></i>
+            <span>About Us</span>
+          </a>
+          <span class="separator">|</span>
+          <a href="#" class="nav-link">
+            <span>Terms and Conditions</span>
+          </a>
+          <span class="separator">|</span>
+          <button class="btn btn-search" id="seeEmployeeStatsBtn">
+            <i class="fas fa-users"></i>
+            <span>See Employee Stats</span>
+          </button>
+          <button class="nav-link logout-btn" id="logoutBtn">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout & Exit</span>
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Employee Search (hidden by default, toggled by See Employee Stats button) -->
+    <div class="page-content">
+      <!-- Period Filters (same as employee dashboard) -->
+      <div class="search-filter" id="periodFilter">
+        <div class="filter-inputs">
+          <div class="input-group">
+            <label for="monthSelect">Month:</label>
+            <select id="monthSelect">
+              <option value="0">January</option>
+              <option value="1">February</option>
+              <option value="2">March</option>
+              <option value="3">April</option>
+              <option value="4">May</option>
+              <option value="5">June</option>
+              <option value="6">July</option>
+              <option value="7">August</option>
+              <option value="8">September</option>
+              <option value="9">October</option>
+              <option value="10">November</option>
+              <option value="11">December</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label for="yearSelect">Year:</label>
+            <select id="yearSelect">
+              <option value="2024">2024</option>
+              <option value="2025">2025</option>
+              <option value="2026">2026</option>
+              <option value="2027">2027</option>
+              <option value="2028">2028</option>
+            </select>
+          </div>
+          <button class="btn btn-search" id="searchBtn">
+            <i class="fas fa-search"></i>
+            <span>Search</span>
+          </button>
+        </div>
+      </div>
+      <div class="search-filter" id="employeeSearchPanel" style="display: none;">
+        <div class="filter-inputs">
+          <div class="input-group">
+            <label for="searchEmployeeName">Employee Name</label>
+            <input type="text" id="searchEmployeeName" placeholder="Enter employee name">
+          </div>
+          <div class="input-group">
+            <label for="searchEmployeeEmail">Employee Email</label>
+            <input type="email" id="searchEmployeeEmail" placeholder="example@company.com">
+          </div>
+          <button class="btn btn-search" id="fetchEmployeeStatsBtn">
+            <i class="fas fa-search"></i>
+            <span>Fetch</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Breadcrumbs -->
+      <div class="breadcrumbs">
+        <a href="index.html">Home</a>
+        <i class="fas fa-chevron-right"></i>
+        <span>Manager Dashboard</span>
+      </div>
+
+      <!-- Manager Stats Section -->
+      <div class="stats-section">
+        <h2 id="statsTitle">My Statistics</h2>
+        
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-content">
+              <h3>Total Hours</h3>
+              <p class="stat-value" id="totalHours">0</p>
+              <p class="stat-label" id="statScopeLabel">This Month</p>
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="stat-content">
+              <h3>Days Present</h3>
+              <p class="stat-value" id="daysPresent">0</p>
+              <p class="stat-label">This Month</p>
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-percentage"></i>
+            </div>
+            <div class="stat-content">
+              <h3>Attendance Rate</h3>
+              <p class="stat-value" id="attendanceRate">0%</p>
+              <p class="stat-label">This Month</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Section -->
+      <div class="charts-section" id="chartsSection" style="display: none;">
+        <h2 id="chartsTitle">Employee Analytics</h2>
+        <div class="charts-container">
+          <div class="chart-card">
+            <h3>Daily Hours Trend</h3>
+            <canvas id="dailyHoursChart"></canvas>
+          </div>
+          <div class="chart-card">
+            <h3>Attendance Distribution</h3>
+            <canvas id="attendancePieChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="activity-section">
+        <h2 id="activityTitle">Recent Activity</h2>
+        <div class="activity-list" id="activityList"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Notification Container -->
+  <div id="notification" class="notification"></div>
+
+  <!-- Custom Logout Popup -->
+  <div id="logoutPopup" class="logout-popup">
+    <div class="logout-popup-content">
+      <!-- Illustration Section -->
+      <div class="logout-illustration">
+        <div class="sky-section">
+          <div class="cloud cloud-1"></div>
+          <div class="cloud cloud-2"></div>
+        </div>
+        <div class="ground-section">
+          <div class="park-bench">
+            <div class="person"></div>
+          </div>
+          <div class="signpost">
+            <div class="sign">LOGIN</div>
+          </div>
+          <div class="pebble pebble-1"></div>
+          <div class="pebble pebble-2"></div>
+          <div class="paper"></div>
+        </div>
+      </div>
+      
+             <!-- Text and Buttons Section -->
+       <div class="logout-text-section">
+         <h2 class="logout-title">Come back soon!</h2>
+         <p class="logout-message">Are you sure you want to Log out?</p>
+         <div class="password-input-section">
+           <label for="logoutPassword">Enter your password:</label>
+           <input type="password" id="logoutPassword" placeholder="Enter password" class="logout-password-input">
+         </div>
+         <div class="logout-buttons">
+           <button class="logout-btn logout-confirm" id="logoutConfirm">Yes</button>
+           <button class="logout-btn logout-cancel" id="logoutCancel">Cancel</button>
+         </div>
+       </div>
+    </div>
+  </div>
+</body>
+</html>
