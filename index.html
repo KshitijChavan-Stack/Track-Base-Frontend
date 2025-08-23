@@ -3,13 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TrackBase Login</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <title>TrackBase - Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <link rel="stylesheet" href="css/styles.css">
-  <style>
-    @import url('https://fonts.cdnfonts.com/css/megna');
-  </style>
 </head>
 <body>
   <!-- Splash Screen -->
@@ -34,45 +31,67 @@
     </div>
   </div>
 
-  <header class="header">
-    <div class="logo">
-      <i class="fas fa-chart-line"></i>
-      <span>TrackBase</span>
+  <div class="login-container">
+    <!-- Left Column - Promotional Content -->
+    <div class="left-column">
+      <div class="logo-section">
+        <div class="logo">
+          <div class="logo-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <span class="logo-text">TrackBase.</span>
+        </div>
+      </div>
+      
+      <div class="content-section">
+        <h1 class="main-heading">
+          Unlock Your<br>
+          <span class="highlight">Team Performance</span>
+        </h1>
+        
+        <div class="illustration">
+          <img src="img/Group.png" alt="Team Collaboration" class="team-image">
+        </div>
+      </div>
     </div>
-    <nav class="navbar">
-      <a href="#">About Us</a>
-      <span class="separator">|</span>
-      <a href="#">Terms and Conditions</a>
-    </nav>
-  </header>
-  
-  <main class="main-content">
-    <div class="left-section">
-      <img src="img/leftSide.png" width="300" alt="left character" class="left-character">
-    </div>
-    <div class="right-section">
-      <img src="img/rightSide.png" width="300" alt="right character" class="right-character">
-    </div>
-  </main>
 
-  <!-- Login card positioned relative to body -->
-  <div class="login-card" id="loginForm">
-    <h2>Login</h2>
-    <div class="input-group">
-      <label for="name">Name</label>
-      <input type="text" id="name" placeholder="Enter your name" />
+    <!-- Right Column - Login Form -->
+    <div class="right-column">
+      <div class="login-form-container">
+        <h2 class="welcome-heading">Welcome to TrackBase</h2>
+        <p class="welcome-subtitle">Unlock Your Team Performance</p>
+        
+        <form class="login-form" id="loginForm">
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" placeholder="Enter your name" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="email">Email address</label>
+            <input type="email" id="email" name="email" value="Farhanpoozan@gmail.com" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Enter password" required>
+          </div>
+          
+          <div class="forgot-password">
+            <a href="#" class="forgot-link">Forgot password?</a>
+          </div>
+          
+          <button type="submit" class="login-btn">Login</button>
+          
+          <div class="register-section">
+            <span class="register-text">Don't have an account? </span>
+            <a href="register.html" class="register-link">Register</a>
+          </div>
+        </form>
+      </div>
+      
+
     </div>
-    <div class="input-group">
-      <label for="email">Email</label>
-      <input type="email" id="email" placeholder="company@example.com" />
-    </div>
-    <div class="input-group">
-      <label for="password">Password</label>
-      <input type="password" id="password" placeholder="123456789" />
-    </div>
-    <a class="forgot-password" href="#">Contact Support</a>
-    <a class="register-link" href="register.html">Register New Employee/Manager</a>
-    <button class="login-button">Login</button>
   </div>
 
   <!-- Post-login options card (hidden by default) -->

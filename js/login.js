@@ -9,8 +9,9 @@ document.addEventListener('DOMContentLoaded', function() {
       splashScreen.style.display = 'none';
     }, 1000);
   }, 4000);
-  const inputs = document.querySelectorAll('.input-group input');
-  const loginButton = document.querySelector('.login-button');
+
+  const loginForm = document.getElementById('loginForm');
+  const loginButton = document.querySelector('.login-btn');
   
   // Check if user is returning with an active session
   checkReturningUser();
@@ -46,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
           document.getElementById('email').value = userEmail;
           
           // Show options card directly
-          document.getElementById('loginForm').style.display = 'none';
+          loginForm.style.display = 'none';
           const optionsCard = document.getElementById('optionsCard');
           optionsCard.style.display = 'block';
           setTimeout(() => {
@@ -55,7 +56,12 @@ document.addEventListener('DOMContentLoaded', function() {
           
           showNotification('Welcome back! You are already logged in.', 'info');
           
-          // Store user data globally
+          // Store user data globally and locally
+          userData = {
+            name: userName,
+            email: userEmail,
+            isManager: userRole === 'manager'
+          };
           window.userData = userData;
         } else {
           console.log('Returning user has no active session, showing login form');
@@ -80,36 +86,14 @@ document.addEventListener('DOMContentLoaded', function() {
       notification.classList.remove('show');
     }, 4000);
   }
-  
-  // Typing animation functionality
-  inputs.forEach(input => {
-    let typingTimer;
-    
-    input.addEventListener('input', function() {
-      // Add typing class immediately
-      this.classList.add('typing');
-      
-      // Clear existing timer
-      clearTimeout(typingTimer);
-      
-      // Set timer to remove typing class after user stops typing
-      typingTimer = setTimeout(() => {
-        this.classList.remove('typing');
-      }, 1000); // Remove animation 1 second after user stops typing
-    });
-    
-    // Remove typing class when input loses focus
-    input.addEventListener('blur', function() {
-      this.classList.remove('typing');
-      clearTimeout(typingTimer);
-    });
-  });
 
   // Store user data globally
   let userData = null;
 
-  // Login button click handler
-  loginButton.addEventListener('click', async function() {
+  // Form submit handler
+  loginForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
     // Get form data
     const name = document.getElementById('name').value.trim();
     const email = document.getElementById('email').value.trim();
@@ -165,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Store user data for later use
         userData = {
-          name: name,
+          name: name, // Use the name from the form
           email: email,
           isManager: result.isManager || false // Get the isManager boolean from API response
         };
@@ -193,7 +177,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Show options card instead of redirecting
         setTimeout(() => {
-          document.getElementById('loginForm').style.display = 'none';
+          loginForm.style.display = 'none';
           const optionsCard = document.getElementById('optionsCard');
           optionsCard.style.display = 'block';
           // Trigger animation after a small delay to ensure display is set
@@ -201,21 +185,24 @@ document.addEventListener('DOMContentLoaded', function() {
             optionsCard.classList.add('show');
           }, 50);
         }, 1000);
+        
       } else {
-        // Error from API
+        // Handle error response
         console.error('Login failed:', result);
-        showNotification(result.message || 'Login failed. Please try again.', 'error');
+        
+        let errorMessage = 'Login failed. Please try again.';
+        
+        if (result.message) {
+          errorMessage = result.message;
+        } else if (result.error) {
+          errorMessage = result.error;
+        }
+        
+        showNotification(errorMessage, 'error');
       }
-
     } catch (error) {
-      // Network or other errors
-      console.error('Error during login:', error);
-      console.error('Error details:', {
-        name: error.name,
-        message: error.message,
-        stack: error.stack
-      });
-      showNotification(`Connection error: ${error.message}`, 'error');
+      console.error('Network error:', error);
+      showNotification('Network error. Please check your connection and try again.', 'error');
     } finally {
       // Reset button state
       loginButton.textContent = 'Login';
@@ -368,72 +355,56 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('continueBtn').addEventListener('click', function() {
     showNotification('Have a productive day ahead! Keep up the great work! 🌟', 'success');
     
-    // Hide the options card and show a simple message
-    const optionsCard = document.getElementById('optionsCard');
-    const loginForm = document.getElementById('loginForm');
-    
     // Hide the options card
+    const optionsCard = document.getElementById('optionsCard');
     optionsCard.style.display = 'none';
     
-    // Show a simple welcome message in the right section while keeping the character image
-    const rightSection = document.querySelector('.right-section');
+    // Show a simple welcome message overlay
+    const welcomeOverlay = document.createElement('div');
+    welcomeOverlay.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      animation: fadeIn 0.5s ease-out;
+    `;
     
-    // Keep the existing character image
-    const characterImage = rightSection.querySelector('.right-character');
-    
-    // Clear the section but preserve the character image
-    rightSection.innerHTML = '';
-    
-    // Add back the character image
-    if (characterImage) {
-      rightSection.appendChild(characterImage);
-    } else {
-      // If character image doesn't exist, create it
-      const newCharacterImage = document.createElement('img');
-      newCharacterImage.src = 'img/rightSide.png';
-      newCharacterImage.width = 300;
-      newCharacterImage.alt = 'right character';
-      newCharacterImage.className = 'right-character';
-      rightSection.appendChild(newCharacterImage);
-    }
-    
-    // Add the welcome message container
-    const welcomeContainer = document.createElement('div');
-    welcomeContainer.innerHTML = `
-      <div class="welcome-message-container" style="
+    welcomeOverlay.innerHTML = `
+      <div style="
         text-align: center; 
-        padding: 40px;
-        animation: fadeInUp 0.8s ease-out;
-        font-family: 'Inter', sans-serif;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 10;
-        background: rgba(255, 255, 255, 0.9);
-        border-radius: 15px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        backdrop-filter: blur(10px);
+        padding: 60px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        max-width: 500px;
+        animation: slideInUp 0.8s ease-out;
       ">
         <h2 style="
-          color: #333; 
-          margin-bottom: 20px; 
+          color: #2d3748; 
+          margin-bottom: 30px; 
           font-weight: 700;
           font-size: 2.5rem;
           animation: slideInDown 1s ease-out 0.2s both;
         ">
           Welcome Back! 
-          <span class="wave" style="
+          <span style="
             display: inline-block;
             animation: wave 2s ease-in-out infinite;
           ">👋</span>
         </h2>
         <p style="
-          color: #666; 
+          color: #718096; 
           font-size: 1.2rem; 
           line-height: 1.6;
-          font-weight: 600;
+          font-weight: 500;
           animation: slideInUp 1s ease-out 0.4s both;
+          margin-bottom: 30px;
         ">
           Have a productive day ahead! Keep up the great work! 
           <span style="
@@ -441,10 +412,28 @@ document.addEventListener('DOMContentLoaded', function() {
             animation: sparkle 1.5s ease-in-out infinite;
           ">🌟</span>
         </p>
+        <button onclick="this.parentElement.parentElement.remove()" style="
+          background: #00d4aa;
+          color: white;
+          border: none;
+          padding: 12px 24px;
+          border-radius: 8px;
+          font-size: 16px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        " onmouseover="this.style.background='#00b894'" onmouseout="this.style.background='#00d4aa'">
+          Continue
+        </button>
       </div>
       
       <style>
-        @keyframes fadeInUp {
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        
+        @keyframes slideInUp {
           from {
             opacity: 0;
             transform: translateY(30px);
@@ -459,17 +448,6 @@ document.addEventListener('DOMContentLoaded', function() {
           from {
             opacity: 0;
             transform: translateY(-30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        @keyframes slideInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
           }
           to {
             opacity: 1;
@@ -502,7 +480,7 @@ document.addEventListener('DOMContentLoaded', function() {
       </style>
     `;
     
-    rightSection.appendChild(welcomeContainer);
+    document.body.appendChild(welcomeOverlay);
   });
 
   document.getElementById('statsBtn').addEventListener('click', function() {
@@ -510,9 +488,15 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
       // Pass the user's name and email via URL parameters
       const currentUserData = userData || window.userData;
-      const userName = currentUserData ? currentUserData.name : 'User';
-      const userEmail = currentUserData ? currentUserData.email : '';
-      const isManager = currentUserData ? currentUserData.isManager : false;
+      
+      if (!currentUserData) {
+        showNotification('User data not found. Please login again.', 'error');
+        return;
+      }
+      
+      const userName = currentUserData.name;
+      const userEmail = currentUserData.email;
+      const isManager = currentUserData.isManager;
       
       // Route based on user role
       if (isManager) {
@@ -537,13 +521,23 @@ document.addEventListener('DOMContentLoaded', function() {
       console.log('=== MARKING EXIT FOR USER ===');
       console.log('User data:', userData);
       
+      // Get user data from local or global scope
+      const currentUserData = userData || window.userData;
+      
+      if (!currentUserData) {
+        showNotification('User data not found. Please login again.', 'error');
+        logoutBtn.innerHTML = originalText;
+        logoutBtn.disabled = false;
+        return;
+      }
+      
       // Get the password from the form
       const password = document.getElementById('password').value.trim();
       
       // Prepare exit data with correct format
       const exitData = {
-        EmployeeName: userData.name,
-        Email: userData.email,
+        EmployeeName: currentUserData.name,
+        Email: currentUserData.email,
         password: password
       };
       
@@ -583,22 +577,13 @@ document.addEventListener('DOMContentLoaded', function() {
           
           // Hide options card with animation
           const optionsCard = document.getElementById('optionsCard');
-          optionsCard.style.transform = 'translate(-50%, -50%) scale(0.3)';
-          optionsCard.style.opacity = '0';
+          optionsCard.classList.remove('show');
           
           setTimeout(() => {
             optionsCard.style.display = 'none';
-            // Show login form with animation
+            // Show login form
             const loginForm = document.getElementById('loginForm');
             loginForm.style.display = 'block';
-            loginForm.style.opacity = '0';
-            loginForm.style.transform = 'translateY(20px)';
-            
-            setTimeout(() => {
-              loginForm.style.transition = 'all 0.5s ease';
-              loginForm.style.opacity = '1';
-              loginForm.style.transform = 'translateY(0)';
-            }, 50);
             
             // Reset user data
             userData = null;
